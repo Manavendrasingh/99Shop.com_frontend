@@ -1,16 +1,42 @@
+import { Link } from "react-router-dom";
+import { useContext } from "react";
+import { ThemeStore } from "./utils/ThemeContoller";
+
+
 const Navbar = () => {
+      
+
+    const {theme,setTheme} = useContext(ThemeStore);
+   // console.log(obj);
+
+   const darkTheme = "navbar bg-base-200 text-white flex flex-wrap justify-normal";
+   const lightTheme = "navbar bg-gray-300 text-black flex flex-wrap justify-normal";
+
+   const handelTheme = (()=>{
+         // console.log("before set ",theme)
+          setTheme(theme == "light" ? 'dark':'light');
+         // localStorage.setItem("theme", theme); // not working because setTheme change the theme variable at rending 
+          localStorage.setItem("theme", theme == "light" ? 'dark' : 'light');
+          //console.log("before set ",theme)
+   })
+
+
+
   return (
-    <div className="navbar bg-base-300">
+    <div className={theme == "light" ? lightTheme: darkTheme}>
       <div className="flex-1">
-        <a className="btn btn-ghost text-xl">99.Shop.Com</a>
+        <Link className="btn btn-ghost text-xl" to = "/">99.Shop.Com</Link>
       </div>
       <div className="flex-none">
         <ul className="menu menu-horizontal px-1">
           <li>
-            <a>cart</a>
+            <Link to="/Cart">cart</Link>
           </li>
           <li>
-            <a>profile</a>
+            <Link to="/food" className = "text-red-500">Food</Link>
+          </li>
+          <li>
+            <Link to="/Profile">profile</Link>
           </li>
           <li>
             <label className="flex cursor-pointer gap-2">
@@ -32,6 +58,7 @@ const Navbar = () => {
                 type="checkbox"
                 value="synthwave"
                 className="toggle theme-controller"
+                onClick = {handelTheme}
               />
               <svg
                 xmlns="http://www.w3.org/2000/svg"

@@ -1,13 +1,17 @@
 import Productcard from "./Productcard";
 import Data from "./Data.js";
 import { useEffect, useState } from "react";
-import ShimmerUI from "./ShimmerUI";
+import ShimmerUI from "./ShimmerUI.jsx";
+
+import { ThemeStore } from "./utils/ThemeContoller.jsx";
+import { useContext } from "react";
+
 
 
 
 const Home = () => {
-  const [allData ,setAllData] = useState([...Data]);
-  const [productData , setProductData] = useState([...Data])
+  const [allData ,setAllData] = useState([]);
+  const [productData , setProductData] = useState([])
   const [query,setQuery] = useState("");
   const handelToRated= ()=>{
           let filterData = 
@@ -15,7 +19,7 @@ const Home = () => {
                 return obj.rating > 4;
               })
           //console.log(filterData);
-
+          
           setProductData(filterData);  
           
   }
@@ -28,14 +32,6 @@ const Home = () => {
   }
 
   const handelSearch = ()=>{
-          //  let searchInput = document.querySelector(".grow");
-          //  let productSearch = searchInput.value;
-          //  let searchData = allData.filter((obj)=>{
-          //   // console.log(allData);
-          //   return obj.title.toLocaleLowerCase().includes(productSearch.trim().toLocaleLowerCase(),0);
-
-          //  })
-          //  setProductData(searchData);
 
           let searchData = allData.filter((obj)=>{
 
@@ -47,30 +43,93 @@ const Home = () => {
   
   }
 
+
+  const handelHighToLow = (()=>{
+    let copyData = [...productData];
+    copyData.sort((a,b)=>{
+      return b.price - a.price;
+    })
+    setProductData(copyData);
+   //console.log(copyData);
+
+
+  })
+
+  const handelLowToHigh = (()=>{
+    let copyData = [...productData];
+    copyData.sort((a,b)=>{
+      return a.price - b.price;
+    })
+
+    setProductData(copyData);
+
+  })
+
   const getData = async ()=>{
     let ApiData = await fetch('https://dummyjson.com/products');
+    //let ApiData = await fetch('https://dummyjson.com/RESOURCE/?limit=10');
     let obj = await ApiData.json();
-   // console.log(obj.products);
+    // console.log(obj.products);
+
+
+     
      setAllData(obj.products);
      setProductData(obj.products);
+ 
 
 
 
   }
-  useEffect(()=>{ // to create simmer ui
+
+
+
+  useEffect(()=>{ 
     getData();
   },[])
+ 
+   const {theme} = useContext(ThemeStore);
+   const darkTheme = "min-h-[90vh] w-screen bg-teal-300 text-white";
+   const lightTheme = "min-h-[90vh] w-screen bg-gray-100 text-white";
+ 
+
+
+
+// understanding of dependncy array
+
+  // useEffect(()=>{ // to create simmer ui
+  //   console.log("[]")
+  // },[])
+
+  // useEffect(()=>{ // to create simmer ui
+  //   console.log("No array")
+  // })
+
+  // useEffect(()=>{ // to create simmer ui
+  //   console.log("query")
+  // },[query])
+
+
 
   if(allData.length == 0)
     {
-      <ShimmerUi></ShimmerUi>
+     // console.log("shimmer rendering");
+      return(
+      
+         <ShimmerUI></ShimmerUI>
+     
+     
+      )
     }
+  
+  
   return (
-    <div className="min-h-[90vh] w-screen bg-white">
+    
+    <div className={theme == "light" ? lightTheme : darkTheme}>
       <div className="flex justify-around p-3">
         <button className="btn btn-accent" onClick={handelToRated}>TopRated</button>
-        <button className="btn btn-accent" onClick={()=>handelCategory('beauty')}>Beauty</button>
-        <button className="btn btn-accent" onClick={()=>handelCategory('groceries')}>Glocery</button>
+        
+        <button className="btn btn-accent" onClick={handelHighToLow}>High-To-Low</button>
+        <button className="btn btn-accent" onClick={handelLowToHigh}>Low-To-High</button>
         <div className="search-bar flex justify-normal">
           <label className="input input-bordered flex items-center gap-2 mr-2">
             <input type="text" className="grow" placeholder="Search"
@@ -91,8 +150,10 @@ const Home = () => {
           </label>
           <button className="btn btn-accent" onClick={handelSearch}>Search</button>
         </div>
+        <button className="btn btn-accent" onClick={()=>handelCategory('groceries')}>Glocery</button>
         <button className="btn btn-accent" onClick={()=>handelCategory('furniture')}>Furniture</button>
         <button className="btn btn-accent" onClick={()=>handelCategory('beauty')}>Electronics</button>
+        <button className="btn btn-accent" onClick={()=>handelCategory('beauty')}>Beauty</button>
       </div>
       <div className="cards flex justify-around w-100 flex-wrap margin-3">
         {productData.map((obj) => (
