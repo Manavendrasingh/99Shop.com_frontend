@@ -1,34 +1,39 @@
 import Productcard from "./Productcard";
-import Data from "./Data.js";
 import { useEffect, useState } from "react";
 import ShimmerUI from "./ShimmerUI.jsx";
-
 import { ThemeStore } from "./utils/ThemeContoller.jsx";
 import { useContext } from "react";
+import useAllProductData from "./utils/useAllProductData.jsx";
+
 
 
 
 
 const Home = () => {
-  const [allData ,setAllData] = useState([]);
-  const [productData , setProductData] = useState([])
+
+  let {allData} = useAllProductData();
+  let [productData,setProductData] = useState();
+  useEffect(() => {
+    setProductData([...allData]);
+  }, [allData]);
+ 
   const [query,setQuery] = useState("");
+
   const handelToRated= ()=>{
-          let filterData = 
-              allData.filter((obj)=>{
-                return obj.rating > 4;
+          let filterData = [...allData];
+              filterData.sort((objA,objB)=>{
+                return objB.rating - objA.rating;
               })
-          //console.log(filterData);
-          
-          setProductData(filterData);  
+           setProductData(filterData);
+          //  console.log("this is inside",productData);
           
   }
+  // console.log("this is outside",productData);
   const handelCategory = (category)=>{
     let filterData = allData.filter((obj)=>{
       return obj.category == category;
     })
-    //console.log(filterData);
-    setProductData(filterData);
+    setProductData([...filterData]);
   }
 
   const handelSearch = ()=>{
@@ -38,8 +43,7 @@ const Home = () => {
             return obj.title.toLocaleLowerCase().includes(query.trim().toLocaleLowerCase(),0);
 
           })
-          //console.log(query);
-          setProductData(searchData);
+          setProductData([...searchData]);
   
   }
 
@@ -50,9 +54,6 @@ const Home = () => {
       return b.price - a.price;
     })
     setProductData(copyData);
-   //console.log(copyData);
-
-
   })
 
   const handelLowToHigh = (()=>{
@@ -65,58 +66,16 @@ const Home = () => {
 
   })
 
-  const getData = async ()=>{
-    let ApiData = await fetch('https://dummyjson.com/products');
-    //let ApiData = await fetch('https://dummyjson.com/RESOURCE/?limit=10');
-    let obj = await ApiData.json();
-    // console.log(obj.products);
-
-
-     
-     setAllData(obj.products);
-     setProductData(obj.products);
- 
-
-
-
-  }
-
-
-
-  useEffect(()=>{ 
-    getData();
-  },[])
  
    const {theme} = useContext(ThemeStore);
    const darkTheme = "min-h-[90vh] w-screen bg-teal-300 text-white";
    const lightTheme = "min-h-[90vh] w-screen bg-gray-100 text-white";
  
 
-
-
-// understanding of dependncy array
-
-  // useEffect(()=>{ // to create simmer ui
-  //   console.log("[]")
-  // },[])
-
-  // useEffect(()=>{ // to create simmer ui
-  //   console.log("No array")
-  // })
-
-  // useEffect(()=>{ // to create simmer ui
-  //   console.log("query")
-  // },[query])
-
-
-
   if(allData.length == 0)
     {
-     // console.log("shimmer rendering");
       return(
-      
          <ShimmerUI></ShimmerUI>
-     
      
       )
     }
@@ -152,7 +111,7 @@ const Home = () => {
         </div>
         <button className="btn btn-accent" onClick={()=>handelCategory('groceries')}>Glocery</button>
         <button className="btn btn-accent" onClick={()=>handelCategory('furniture')}>Furniture</button>
-        <button className="btn btn-accent" onClick={()=>handelCategory('beauty')}>Electronics</button>
+        <button className="btn btn-accent" onClick={()=>handelCategory('electronics')}>Electronics</button>
         <button className="btn btn-accent" onClick={()=>handelCategory('beauty')}>Beauty</button>
       </div>
       <div className="cards flex justify-around w-100 flex-wrap margin-3">
